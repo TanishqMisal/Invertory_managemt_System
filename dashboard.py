@@ -47,12 +47,16 @@ class IMS:
         self.sales_icon = load_image("coupon.png", (30, 30))
         self.logout_icon = load_image("power-off.png", (30, 30))
 
+
+
     
-        Label(
+        Button(
             self.menu_frame, text="Dashboard",
             font=("Segoe UI", 16, "bold"),
             bg="#3D3B8E", fg="white", pady=10,
-            image=self.home_icon, compound=LEFT, padx=10
+            image=self.home_icon, compound=LEFT, padx=10,
+            bd=0,activebackground='#4B48A9',cursor="hand2",
+            command=self.show_home
         ).pack(fill=X)
 
 
@@ -72,10 +76,16 @@ class IMS:
         Button(self.menu_frame, text="Logout", image=self.logout_icon, compound=LEFT, **btn_style).pack(fill=X, pady=30)
 
         
+        self.show_home()
+
+    def show_home(self):
+        for widget in self.content_frame.winfo_children():
+                widget.destroy()
+
         Label(
-            self.content_frame, text="Welcome to IMS Dashboard!",
-            font=("Segoe UI", 20), bg="#FFFFFF", fg="#333"
-        ).pack(pady=20)
+            self.content_frame,text="Welcome to IMS Dashboard!",
+            font=("Segoe UI",20),bg='#FFFFFF',fg='#333'
+            ).pack(pady=20)
 
     def employee(self):
         for widget in self.content_frame.winfo_children():

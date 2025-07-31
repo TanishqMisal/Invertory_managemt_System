@@ -47,8 +47,6 @@ class IMS:
         self.sales_icon = load_image("coupon.png", (30, 30))
         self.logout_icon = load_image("power-off.png", (30, 30))
 
-
-
     
         Button(
             self.menu_frame, text="Dashboard",

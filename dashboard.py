@@ -19,7 +19,7 @@ class IMS:
             path = IMAGE_DIR / filename
             return ImageTk.PhotoImage(Image.open(path).resize(size))
 
-        self.icon_title = load_image("LOGO.png", (30, 30))
+        self.icon_title = load_image("LOGO.png", (50,50))
         title = Label(
             self.root, text="  Inventory Management System",
             image=self.icon_title, compound=LEFT,

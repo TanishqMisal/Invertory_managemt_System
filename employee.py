@@ -1,8 +1,9 @@
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk,messagebox
 from PIL import Image, ImageTk
 from tkinter import filedialog
 import os
+import sqlite3
 
 class employee_Class:
     def __init__(self, parent):
@@ -115,7 +116,7 @@ class employee_Class:
                           highlightthickness=2,
                           highlightcolor='white'
                           
-                          ).place(x=30,y=400,width=80)
+                          ).place(x=30,y=350,width=80)
         
         btn_update = Button(self.main_frame, text="Update",
                           font=("Inter", 14),bg="#D6C24A",
@@ -124,7 +125,7 @@ class employee_Class:
                           highlightthickness=2,
                           highlightcolor='white'
                           
-                          ).place(x=160,y=400,width=80)
+                          ).place(x=160,y=350,width=80)
         
         btn_delete = Button(self.main_frame, text="Delete",
                           font=("Inter", 14),bg="#F30A0A",
@@ -133,7 +134,7 @@ class employee_Class:
                           highlightthickness=2,
                           highlightcolor='white'
                           
-                          ).place(x=30,y=475,width=80)
+                          ).place(x=30,y=400,width=80)
         
         btn_clear = Button(self.main_frame, text="clear",
                           font=("Inter", 14),bg="#CDBEE7",
@@ -142,8 +143,50 @@ class employee_Class:
                           highlightthickness=2,
                           highlightcolor='white'
                           
-                          ).place(x=160,y=475,width=80)
+                          ).place(x=160,y=400,width=80)
         
+        table_titile = Label(self.main_frame,text="Employee List",
+                             bg="#4B0082",fg="white",
+                             font=("Segoe UI",14,"bold")
+                             )
+        table_titile.place(x=30,y=495,width=950,height=30)
+
+        list_frame = Frame(self.main_frame,bd=2,relief=RIDGE,bg='white')
+        list_frame.place(x=30,y=525,width=950,height=200)
+
+        scroll_x = Scrollbar(list_frame,orient=HORIZONTAL)
+        scroll_y = Scrollbar(list_frame,orient=VERTICAL)
+
+        self.employee_table = ttk.Treeview(list_frame,
+                                               columns=("Name","Contact No.","Email","Salary","Role"),
+                                               xscrollcommand = scroll_x.set,
+                                               yscrollcommand= scroll_y.set
+                                               )
+        scroll_x.pack(side=BOTTOM,fill=X)
+        scroll_y.pack(side=RIGHT,fill=Y)
+        
+        scroll_x.config(command=self.employee_table.xview)
+        scroll_y.config(command=self.employee_table.yview)
+
+        self.employee_table.heading("Name",text="Name")
+        self.employee_table.heading("Contact No.",text="Contact No.")
+        self.employee_table.heading("Email",text="Email")
+        self.employee_table.heading("Salary",text="Salary")
+        self.employee_table.heading("Role",text="Role")
+
+        self.employee_table["show"] = "headings"
+
+        self.employee_table.column("Name",width=100)
+        self.employee_table.column("Contact No.",width=200)
+        self.employee_table.column("Email",width=250)
+        self.employee_table.column("Salary",width=150)
+        self.employee_table.column("Role",width=150)
+
+        self.employee_table.pack(fill=BOTH,expand=1)
+
+        self.employee_table.insert('','end',values=("Tanishq Misal","766611****","tanishqmisal0@gmail.com","5000","Invertory management"))
+
+
 
     def upload_photo(self):
         file_path = filedialog.askopenfilename(
@@ -160,10 +203,16 @@ class employee_Class:
 
             self.photo_preview.config(image=self.tk_img)
 
-            
+#functions
 
-
-
+    def add(self):
+        con = sqlite3.connect(database='ims.db')
+        con = con.cursor()
+        try:
+            if self.
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to :{str(ex)}")
+        
 if __name__ == "__main__":
     root = Tk()
     root.title("Inventory Management System")

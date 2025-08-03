@@ -47,6 +47,8 @@ class IMS:
         self.sales_icon = load_image("coupon.png", (30, 30))
         self.logout_icon = load_image("power-off.png", (30, 30))
 
+        self.active_tab = None
+        self.menu_buttons = {}
     
         Button(
             self.menu_frame, text="Dashboard",
@@ -66,8 +68,14 @@ class IMS:
         }
 
         
-        Button(self.menu_frame, text="Employee", command=self.employee, image=self.employee_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
-        Button(self.menu_frame, text="Supplier", image=self.suppy_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
+        emp_btn = Button(self.menu_frame,text="Employee",image=self.employee_icon,compound=LEFT,**btn_style,command=lambda:[self.employee(),self.highlight_tab("employee")])
+        emp_btn.pack(fill=X,pady=2)
+        self.menu_buttons["employee"]=emp_btn
+
+        sup_btn = Button(self.menu_frame, text="Supplier", image=self.suppy_icon, compound=LEFT, **btn_style,command=lambda:[self.supplier(),self.highlight_tab("supplier")])
+        sup_btn.pack(fill=X, pady=2)
+        self.menu_buttons["supplier"]=sup_btn
+
         Button(self.menu_frame, text="Products", image=self.product_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
         Button(self.menu_frame, text="Inventory", image=self.inv_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
         Button(self.menu_frame, text="Sales", image=self.sales_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
@@ -75,6 +83,14 @@ class IMS:
 
         
         self.show_home()
+
+    def highlight_tab(self,tab_name):
+            for name, btn in self.menu_buttons.items():
+                if name == tab_name:
+                    btn.config(bg= '#5A55CA',fg='white')
+                else:
+                        btn.config(bg="#FFFFFF",fg = '#333')
+            self.active_tab = tab_name  
 
     def show_home(self):
         for widget in self.content_frame.winfo_children():
@@ -89,6 +105,11 @@ class IMS:
         for widget in self.content_frame.winfo_children():
             widget.destroy()
         self.employee_obj = employee_Class(self.content_frame)
+
+    def supplier(self):
+         for widget in self.content_frame.winfo_children():
+              widget.destroy()
+         Label(self.content_frame,text="Supplier Section",font=("Segoe UI",20),bg='#FFFFFF',fg='#333').pack(pady=20)
 
 if __name__ == "__main__":
     root = Tk()

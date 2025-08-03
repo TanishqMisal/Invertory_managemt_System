@@ -103,7 +103,9 @@ class employee_Class:
         self.employee_table["show"] = "headings"
         self.employee_table.pack(fill=BOTH, expand=1)
 
-        self.employee_table.insert('', 'end', values=("Tanishq Misal", "766611****", "tanishqmisal0@gmail.com", "*****", "Inventory management"))
+        self.show()
+
+        
 
     def upload_photo(self):
         file_path = filedialog.askopenfilename(
@@ -150,6 +152,8 @@ class employee_Class:
         error_win.grab_set()
         self.main_frame.wait_window(error_win)
 
+        self.show()
+
     def add(self):
         conn = sqlite3.connect('ims.db')
         cur = conn.cursor()
@@ -171,6 +175,15 @@ class employee_Class:
                 )
                 return
 
+            cur.execute("SELECT * FROM employee WHERE Name==?",(self.name_entry.get(),))
+            if cur.fetchone():
+                self.show_error(
+                    error_title="Duplicate Entry 🚫",
+                    message="Employee with this name already exists",
+                    code="ENP_DUP"
+
+                )    
+                return
 
             cur.execute("""INSERT INTO employee(Name, Contact, Email, Salary, Role) VALUES(?, ?, ?, ?, ?)""",(
 
@@ -183,6 +196,7 @@ class employee_Class:
 
             conn.commit()
             conn.close()
+            self.show()
 
             messagebox.showinfo("Success","Employee added successfully!")
             self.clear_fields()
@@ -200,6 +214,18 @@ class employee_Class:
         self.email_entry.delete(0,END)
         self.salary_entry.delete(0,END)
         self.Role_box.delete(0,END)
+    
+    def show(self):
+        con = sqlite3.connect(database=r'ims.db')
+        cur = con.cursor()
+        try:
+            cur.execute("select * from employee")
+            rows = cur.fetchall()
+            self.employee_table.delete(*self.employee_table.get_children())
+            for row in rows:
+                self.employee_table.insert('',END,values = row)
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.main_frame)
    
 
 if __name__ == "__main__":

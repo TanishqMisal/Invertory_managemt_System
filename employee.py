@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 import os
 import sqlite3
+from io import BytesIO
 
 class employee_Class:
     def __init__(self, parent):
@@ -41,9 +42,9 @@ class employee_Class:
         self.name_entry.place(x=30, y=185, width=250, height=30)
 
         Label(self.main_frame, text="Contact No.", font=("Segoe UI", 10, "bold"), fg='#555', bg='white').place(x=297, y=160)
-        self.contant_entry = Entry(self.main_frame, font=("Segoe UI", 11), bd=1, relief=FLAT, bg='white', fg='#333',
+        self.contact_entry = Entry(self.main_frame, font=("Segoe UI", 11), bd=1, relief=FLAT, bg='white', fg='#333',
                                    highlightcolor='#4B0082', highlightbackground='#ccc', highlightthickness=1)
-        self.contant_entry.place(x=300, y=185, width=250, height=30)
+        self.contact_entry.place(x=300, y=185, width=250, height=30)
 
         Label(self.main_frame, text="Email", font=("Segoe UI", 10, 'bold'), fg='#555', bg='white').place(x=30, y=225)
         self.email_entry = Entry(self.main_frame, font=("segoe UI", 11), bd=1, relief=FLAT, bg='white', fg='#333',
@@ -77,7 +78,7 @@ class employee_Class:
         Button(self.main_frame, text="Delete", font=("Inter", 14), bg="#F30A0A", fg='white', bd=0, cursor='hand2',
                activebackground="#FFA3A3", highlightthickness=2, highlightcolor='white').place(x=30, y=400, width=80)
         Button(self.main_frame, text="Clear", font=("Inter", 14), bg="#CDBEE7", fg='white', bd=0, cursor='hand2',
-               activebackground="#FFFFFF", highlightthickness=2, highlightcolor='white').place(x=160, y=400, width=80)
+               activebackground="#FFFFFF", highlightthickness=2, highlightcolor='white',command=self.clear_fields).place(x=160, y=400, width=80)
 
         Label(self.main_frame, text="Employee List", bg="#4B0082", fg="white",
               font=("Segoe UI", 14, "bold")).place(x=30, y=495, width=950, height=30)
@@ -102,6 +103,7 @@ class employee_Class:
 
         self.employee_table["show"] = "headings"
         self.employee_table.pack(fill=BOTH, expand=1)
+        self.employee_table.bind("<ButtonRelease-1>",self.show_data)
 
         self.show()
 
@@ -155,86 +157,93 @@ class employee_Class:
         self.show()
 
     def add(self):
-        conn = sqlite3.connect('ims.db')
-        cur = conn.cursor()
+        name = self.name_entry.get()
+        contact = self.contact_entry.get()
+        email = self.email_entry.get()
+        salary = self.salary_entry.get()
+        role = self.Role_box.get()
 
-        cur.execute("""CREATE TABLE IF NOT EXISTS employee(
-                    Name TEXT,
-                    Contact TEXT,
-                    Email TEXT,
-                    Salary TEXT,
-                    Role TEXT,
-                    Photo BLOB
-                    )""")
+        if not name:
+            self.show_error(message="Name is required", code="EMP1001")
+            return
+
+        photo_data = None
+        if self.selected_photo_path:
+            with open(self.selected_photo_path, 'rb') as file:
+                photo_data = file.read()
 
         try:
-            if self.name_entry.get() == '':
-                self.show_error(
-                    error_title="Missing Field ❗",
-                    message="Please enter the employee's name.",
-                    code="EMP001"
-                )
-                return
-
-            cur.execute("SELECT * FROM employee WHERE Name==?",(self.name_entry.get(),))
-            if cur.fetchone():
-                self.show_error(
-                    error_title="Duplicate Entry 🚫",
-                    message="Employee with this name already exists",
-                    code="ENP_DUP"
-
-                )    
-                return
-            if self.selected_photo_path:
-                with open(self.selected_photo_path, 'rb') as file:
-                    photo_data = file.read()
-
-            cur.execute("""INSERT INTO employee(Name, Contact, Email, Salary, Role,Photo) VALUES(?, ?, ?, ?, ?, ?)""",(
-
-                    self.name_entry.get(),
-                    self.contant_entry.get(),
-                    self.email_entry.get(),
-                    self.salary_entry.get(),
-                    self.Role_box.get(),
-                    photo_data
-                ))
-
-            conn.commit()
-            conn.close()
+            con = sqlite3.connect("employee.db")
+            cur = con.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS employee (name TEXT, contact TEXT, email TEXT, salary TEXT, role TEXT, photo BLOB)")
+            cur.execute("INSERT INTO employee VALUES (?, ?, ?, ?, ?, ?)", (name, contact, email, salary, role, photo_data))
+            con.commit()
+            con.close()
             self.show()
-
-            messagebox.showinfo("Success","Employee added successfully!")
             self.clear_fields()
-        
-        except Exception as ex:
-            self.show_error(
-                error_title="Unexpected Error",
-                message=str(ex),
-                code="DB_ERR"
-            )
+        except Exception as e:
+            messagebox.showerror("Database Error", f"Error: {str(e)}")
 
-    def clear_fields(self):
-        self.name_entry.delete(0,END)
-        self.contant_entry.delete(0,END)
-        self.email_entry.delete(0,END)
-        self.salary_entry.delete(0,END)
-        self.Role_box.delete(0,END)
-        self.selected_photo_path = None
-        self.photo_preview.config(image='')
-    
     def show(self):
-        con = sqlite3.connect(database=r'ims.db')
-        cur = con.cursor()
         try:
-            cur.execute("select * from employee")
+            con = sqlite3.connect("ims.db")
+            cur = con.cursor()
+            cur.execute("SELECT name, contact, email, salary, role FROM employee")
             rows = cur.fetchall()
+            con.close()
+
             self.employee_table.delete(*self.employee_table.get_children())
             for row in rows:
-                self.employee_table.insert('',END,values = row)
-        except Exception as ex:
-            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.main_frame)
-   
+                self.employee_table.insert('', END, values=row)
+        except Exception as e:
+            messagebox.showerror("Database Error", str(e))
 
+    def clear_fields(self):
+        self.name_entry.delete(0, END)
+        self.contact_entry.delete(0, END)
+        self.email_entry.delete(0, END)
+        self.salary_entry.delete(0, END)
+        self.Role_box.delete(0, END)
+        self.selected_photo_path = None
+        self.photo_preview.config(image='')
+
+    def show_data(self, event):
+        selected = self.employee_table.focus()
+        if not selected:
+            return
+
+        data = self.employee_table.item(selected)['values']
+        if data:
+            self.name_entry.delete(0, END)
+            self.contact_entry.delete(0, END)
+            self.email_entry.delete(0, END)
+            self.salary_entry.delete(0, END)
+            self.Role_box.delete(0, END)
+
+            self.name_entry.insert(0, data[0])
+            self.contact_entry.insert(0, data[1])
+            self.email_entry.insert(0, data[2])
+            self.salary_entry.insert(0, data[3])
+            self.Role_box.insert(0, data[4])
+
+        try:
+            con = sqlite3.connect("ims.db")
+            cur = con.cursor()
+            cur.execute("SELECT photo FROM employee WHERE email = ?", (data[2],))
+            result = cur.fetchone()
+            con.close()
+
+            if result and result[0]:
+                image_data = BytesIO(result[0])
+                img = Image.open(image_data).resize((100, 100))
+                self.tk_img = ImageTk.PhotoImage(img)  # 🔐 Keep a reference!
+                self.photo_preview.config(image=self.tk_img)
+            else:
+                self.photo_preview.config(image='')
+                self.tk_img = None
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load image: {str(e)}")
+       
 if __name__ == "__main__":
     root = Tk()
     root.title("Inventory Management System")

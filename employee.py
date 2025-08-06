@@ -74,9 +74,9 @@ class employee_Class:
         Button(self.main_frame, text="Save", font=("Inter", 14), bg="#4B0082", fg='white', bd=0, cursor='hand2',
                activebackground='#5E4B8B', highlightthickness=2, highlightcolor='white', command=self.add).place(x=30, y=350, width=80)
         Button(self.main_frame, text="Update", font=("Inter", 14), bg="#D6C24A", fg='white', bd=0, cursor='hand2',
-               activebackground='#E8DC89', highlightthickness=2, highlightcolor='white').place(x=160, y=350, width=80)
+               activebackground='#E8DC89', highlightthickness=2, highlightcolor='white',command=self.update).place(x=160, y=350, width=80)
         Button(self.main_frame, text="Delete", font=("Inter", 14), bg="#F30A0A", fg='white', bd=0, cursor='hand2',
-               activebackground="#FFA3A3", highlightthickness=2, highlightcolor='white').place(x=30, y=400, width=80)
+               activebackground="#FFA3A3", highlightthickness=2, highlightcolor='white',command=self.delete).place(x=30, y=400, width=80)
         Button(self.main_frame, text="Clear", font=("Inter", 14), bg="#CDBEE7", fg='white', bd=0, cursor='hand2',
                activebackground="#FFFFFF", highlightthickness=2, highlightcolor='white',command=self.clear_fields).place(x=160, y=400, width=80)
 
@@ -243,7 +243,74 @@ class employee_Class:
                 self.tk_img = None
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load image: {str(e)}")
-       
+    
+    def update(self):
+        name = self.name_entry.get()
+        contact = self.contact_entry.get()
+        email = self.email_entry.get()
+        salary = self.salary_entry.get()
+        role = self.Role_box.get()
+
+        if not email:
+            self.show_error(message="Email is required to update employee", code = "EMP1002")
+            return
+        try:
+            con = sqlite3.connect("ims.db")
+            cur = con.cursor()
+
+            photo_data = None
+            if self.selected_photo_path:
+                with open(self.selected_photo_path, 'rb') as file:
+                    photo_data = file.read()
+            
+            if photo_data:
+                cur.execute("""
+                UPDATE employee 
+                SET name=?, contact=?, salary=?, role=?, photo=? 
+                WHERE email=?
+                """, (name, contact, salary, role, photo_data, email))
+            else:
+                cur.execute("""
+                UPDATE employee 
+                SET name=?, contact=?, salary=?, role=? 
+                WHERE email=?
+                """, (name, contact, salary, role, email))
+
+            
+            con.commit()
+            con.close()
+
+            messagebox.showinfo("Success","Employee record updated successfully!")
+            self.show()
+            self.clear_fields()
+        except Exception as e:
+            messagebox.showerror("Error",f"Failed to update:{str(e)}")
+
+
+    def delete(self):
+        email = self.email_entry.get()
+
+        if not email:
+            self.show_error(message="Email is required to delete employee", code="EMP1003")
+            return
+
+        confirm = messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this employee?")
+
+        if confirm:
+            try:
+                con = sqlite3.connect("ims.db")
+                cur = con.cursor()
+                cur.execute("DELETE FROM employee WHERE email = ?", (email,))
+                con.commit()
+                con.close()
+
+                messagebox.showinfo("Success", "Employee deleted successfully!")
+                self.show()
+                self.clear_fields()
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to delete: {str(e)}")
+
+
 if __name__ == "__main__":
     root = Tk()
     root.title("Inventory Management System")

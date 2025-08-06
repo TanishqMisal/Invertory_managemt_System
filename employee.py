@@ -163,7 +163,8 @@ class employee_Class:
                     Contact TEXT,
                     Email TEXT,
                     Salary TEXT,
-                    Role TEXT
+                    Role TEXT,
+                    Photo BLOB
                     )""")
 
         try:
@@ -184,14 +185,18 @@ class employee_Class:
 
                 )    
                 return
+            if self.selected_photo_path:
+                with open(self.selected_photo_path, 'rb') as file:
+                    photo_data = file.read()
 
-            cur.execute("""INSERT INTO employee(Name, Contact, Email, Salary, Role) VALUES(?, ?, ?, ?, ?)""",(
+            cur.execute("""INSERT INTO employee(Name, Contact, Email, Salary, Role,Photo) VALUES(?, ?, ?, ?, ?, ?)""",(
 
                     self.name_entry.get(),
                     self.contant_entry.get(),
                     self.email_entry.get(),
                     self.salary_entry.get(),
-                    self.Role_box.get()
+                    self.Role_box.get(),
+                    photo_data
                 ))
 
             conn.commit()
@@ -214,6 +219,8 @@ class employee_Class:
         self.email_entry.delete(0,END)
         self.salary_entry.delete(0,END)
         self.Role_box.delete(0,END)
+        self.selected_photo_path = None
+        self.photo_preview.config(image='')
     
     def show(self):
         con = sqlite3.connect(database=r'ims.db')

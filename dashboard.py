@@ -71,10 +71,18 @@ class IMS:
         emp_btn = Button(self.menu_frame,text="Employee",image=self.employee_icon,compound=LEFT,**btn_style,command=lambda:[self.employee(),self.highlight_tab("employee")])
         emp_btn.pack(fill=X,pady=2)
         self.menu_buttons["employee"]=emp_btn
+            
+        sup_btn = Button(self.menu_frame, text="Supplier",image=self.suppy_icon,compound=LEFT,**btn_style, command=self.toggle_supplier_menu)
+        sup_btn.pack(fill=X,pady=2)
+        
+        self.menu_buttons["supplier"] = sup_btn
 
-        sup_btn = Button(self.menu_frame, text="Supplier", image=self.suppy_icon, compound=LEFT, **btn_style,command=lambda:[self.supplier(),self.highlight_tab("supplier")])
-        sup_btn.pack(fill=X, pady=2)
-        self.menu_buttons["supplier"]=sup_btn
+        self.supplier_sub_buttons = [
+
+            Button(self.menu_frame,text="Manage Supplier", **btn_style,command=self.supplier_manage),
+            Button(self.menu_frame,text="Add Supplier", **btn_style,command=self.supplier_add)
+        ]
+        self.supplier_dropdown_visible = False
 
         Button(self.menu_frame, text="Products", image=self.product_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
         Button(self.menu_frame, text="Inventory", image=self.inv_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
@@ -83,6 +91,26 @@ class IMS:
 
         
         self.show_home()
+
+    def supplier_add(self):
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+        Label(self.content_frame,text="Add Supplier",font=("Segoe UI",20),bg='#FFFFFF',fg='#333').pack(padx=20)
+
+    def supplier_manage(self):
+        for widget in self.content_frame.winfo_children():
+             widget.destroy()
+        Label(self.content_frame,text="Manage Supplier",font=("Segoe UI",20), bg='#FFFFFF',fg="#333").pack(pady=20)
+
+    def toggle_supplier_menu(self):
+        if self.supplier_dropdown_visible:
+            for btn in self.supplier_sub_buttons:
+                  btn.pack_forget()
+            self.supplier_dropdown_visible = False
+        else:
+            for btn in self.supplier_sub_buttons:
+                  btn.pack(fill = X, padx=40)
+            self.supplier_dropdown_visible = True
 
     def highlight_tab(self,tab_name):
             for name, btn in self.menu_buttons.items():

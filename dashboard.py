@@ -41,11 +41,13 @@ class IMS:
         
         self.home_icon = load_image("house-black-silhouette-without-door.png", (40, 40))
         self.employee_icon = load_image("emp.png", (30, 30))
-        self.suppy_icon = load_image("product-lifecycle.png", (30, 30))
-        self.product_icon = load_image("animal.png", (30, 30))
-        self.inv_icon = load_image("track.png", (30, 30))
+        self.suppy_icon = load_image("SUPPLY.png", (30, 30))
+        self.product_icon = load_image("PET SUPPLIES.png",(30, 30))
+        self.inv_icon = load_image("INVEN.png", (30, 30))
         self.sales_icon = load_image("coupon.png", (30, 30))
-        self.logout_icon = load_image("power-off.png", (30, 30))
+        self.logout_icon = load_image("turn-off.png", (30, 30))
+        self.grooming_icon = load_image("grooming.png",(30,30))
+        self.daybook_icon = load_image("money.png",(30,30))
 
         self.active_tab = None
         self.menu_buttons = {}
@@ -87,6 +89,8 @@ class IMS:
         Button(self.menu_frame, text="Products", image=self.product_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
         Button(self.menu_frame, text="Inventory", image=self.inv_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
         Button(self.menu_frame, text="Sales", image=self.sales_icon, compound=LEFT, **btn_style).pack(fill=X, pady=2)
+        Button(self.menu_frame,text="Grooming",image=self.grooming_icon,compound=LEFT,**btn_style).pack(fill=X,pady=2)
+        Button(self.menu_frame,text="Collection",image=self.daybook_icon,compound=LEFT,**btn_style).pack(fill=X,pady=2)
         Button(self.menu_frame, text="Logout", image=self.logout_icon, compound=LEFT, **btn_style).pack(fill=X, pady=30)
 
         
